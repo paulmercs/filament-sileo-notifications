@@ -3,6 +3,7 @@ const SILEO_LISTENER_FLAG = '__sileoNotificationListenerRegistered';
 const SILEO_DOM_BRIDGE_FLAG = '__sileoDomBridgeRegistered';
 const SILEO_CSS_ID = 'sileo-cdn-css';
 const SILEO_READY_FLAG = '__sileoReady';
+const SILEO_PLUGIN_CONFIG = window.filamentSileoNotificationsConfig ?? {};
 
 if (! document.getElementById(SILEO_CSS_ID)) {
     const cssLink = document.createElement('link');
@@ -40,8 +41,20 @@ const processFilamentNotificationElement = (element, sendToast) => {
     element.dataset.sileoProcessed = '1';
 
     const title = element.querySelector('.fi-no-notification-title')?.textContent?.trim() ?? 'Notification';
-    const body = element.querySelector('.fi-no-notification-body')?.textContent?.trim() ?? '';
+    let body = element.querySelector('.fi-no-notification-body')?.textContent?.trim() ?? '';
     const status = getFilamentStatusFromElement(element);
+
+    if (! body) {
+        if (status === 'success') {
+            if (title === SILEO_PLUGIN_CONFIG?.create?.title) {
+                body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
+            } else if (title === SILEO_PLUGIN_CONFIG?.edit?.title) {
+                body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
+            } else if (title === SILEO_PLUGIN_CONFIG?.delete?.title) {
+                body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
+            }
+        }
+    }
 
     try {
         sendToast({
@@ -99,10 +112,21 @@ const bootBridge = (sendToast) => {
 
         window.addEventListener('notificationSent', (event) => {
             const detail = event?.detail?.notification ?? {};
+            let body = detail.body;
+
+            if (! body && detail.status === 'success') {
+                if (detail.title === SILEO_PLUGIN_CONFIG?.create?.title) {
+                    body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
+                } else if (detail.title === SILEO_PLUGIN_CONFIG?.edit?.title) {
+                    body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
+                } else if (detail.title === SILEO_PLUGIN_CONFIG?.delete?.title) {
+                    body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
+                }
+            }
 
             sendToast({
                 title: detail.title,
-                description: detail.body,
+                description: body,
                 status: detail.status,
                 duration: detail.duration,
             });
@@ -179,4 +203,3 @@ const startSileo = async () => {
 };
 
 startSileo();
-

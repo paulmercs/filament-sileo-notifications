@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Notifications\Notification;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Lang;
 
 class FilamentSileoNotificationsServiceProvider extends ServiceProvider
 {
@@ -27,6 +28,11 @@ class FilamentSileoNotificationsServiceProvider extends ServiceProvider
         if (! config('filament-sileo-notifications.override_action_notifications', true)) {
             return;
         }
+
+        Lang::addLines([
+            'resources/pages/create-record.notifications.created.title' => (string) config('filament-sileo-notifications.messages.create.title'),
+            'resources/pages/edit-record.notifications.saved.title' => (string) config('filament-sileo-notifications.messages.edit.title'),
+        ], 'en', 'filament-panels');
 
         CreateAction::configureUsing(function (CreateAction $action): void {
             $action->successNotification(
@@ -56,4 +62,3 @@ class FilamentSileoNotificationsServiceProvider extends ServiceProvider
         });
     }
 }
-

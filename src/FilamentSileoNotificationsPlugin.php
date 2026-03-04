@@ -5,6 +5,8 @@ namespace Paulmercs\FilamentSileoNotifications;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Filament\Support\Assets\Js;
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Blade;
 
 class FilamentSileoNotificationsPlugin implements Plugin
 {
@@ -26,8 +28,18 @@ class FilamentSileoNotificationsPlugin implements Plugin
                 __DIR__ . '/../resources/dist/sileo-notifications.js',
             )->module(),
         ], 'paulmercs/filament-sileo-notifications');
+
+        $panel->renderHook(
+            PanelsRenderHook::BODY_END,
+            fn (): string => Blade::render(
+                <<<'BLADE'
+                    <script>
+                        window.filamentSileoNotificationsConfig = @js(config('filament-sileo-notifications.messages', []));
+                    </script>
+                BLADE,
+            ),
+        );
     }
 
     public function boot(Panel $panel): void {}
 }
-
