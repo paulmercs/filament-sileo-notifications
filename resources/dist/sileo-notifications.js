@@ -73,22 +73,20 @@ const processFilamentNotificationElement = (element, sendToast) => {
 
     element.dataset.sileoProcessed = '1';
 
-    const title = element.querySelector('.fi-no-notification-title')?.textContent?.trim() ?? 'Notification';
+    let title = element.querySelector('.fi-no-notification-title')?.textContent?.trim() ?? 'Notification';
     let body = element.querySelector('.fi-no-notification-body')?.textContent?.trim() ?? '';
     const status = getFilamentStatusFromElement(element);
+    const operation = inferNotificationOperation(title);
 
-    if (! body) {
-        if (status === 'success') {
-            const operation = inferNotificationOperation(title);
-
-            if (operation === 'create') {
-                body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
-            } else if (operation === 'edit') {
-                body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
-            } else if (operation === 'delete') {
-                body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
-            }
-        }
+    if (status === 'success' && operation === 'create') {
+        title = SILEO_PLUGIN_CONFIG?.create?.title ?? title;
+        body = SILEO_PLUGIN_CONFIG?.create?.body ?? body;
+    } else if (status === 'success' && operation === 'edit') {
+        title = SILEO_PLUGIN_CONFIG?.edit?.title ?? title;
+        body = SILEO_PLUGIN_CONFIG?.edit?.body ?? body;
+    } else if (status === 'success' && operation === 'delete') {
+        title = SILEO_PLUGIN_CONFIG?.delete?.title ?? title;
+        body = SILEO_PLUGIN_CONFIG?.delete?.body ?? body;
     }
 
     try {
@@ -147,22 +145,23 @@ const bootBridge = (sendToast) => {
 
         window.addEventListener('notificationSent', (event) => {
             const detail = event?.detail?.notification ?? {};
+            let title = detail.title;
             let body = detail.body;
+            const operation = inferNotificationOperation(detail.title);
 
-            if (! body && detail.status === 'success') {
-                const operation = inferNotificationOperation(detail.title);
-
-                if (operation === 'create') {
-                    body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
-                } else if (operation === 'edit') {
-                    body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
-                } else if (operation === 'delete') {
-                    body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
-                }
+            if (detail.status === 'success' && operation === 'create') {
+                title = SILEO_PLUGIN_CONFIG?.create?.title ?? title;
+                body = SILEO_PLUGIN_CONFIG?.create?.body ?? body;
+            } else if (detail.status === 'success' && operation === 'edit') {
+                title = SILEO_PLUGIN_CONFIG?.edit?.title ?? title;
+                body = SILEO_PLUGIN_CONFIG?.edit?.body ?? body;
+            } else if (detail.status === 'success' && operation === 'delete') {
+                title = SILEO_PLUGIN_CONFIG?.delete?.title ?? title;
+                body = SILEO_PLUGIN_CONFIG?.delete?.body ?? body;
             }
 
             sendToast({
-                title: detail.title,
+                title,
                 description: body,
                 status: detail.status,
                 duration: detail.duration,
