@@ -21,7 +21,7 @@ Use [Sileo](https://www.npmjs.com/package/sileo)-style toasts in Filament v5, an
 ## Installation
 
 ```bash
-composer require paulmercs/filament-sileo-notifications:dev-main
+composer require paulmercs/filament-sileo-notifications:^1.0
 ```
 
 ## Register The Plugin
