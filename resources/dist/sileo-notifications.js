@@ -3,10 +3,16 @@ const SILEO_LISTENER_FLAG = '__sileoNotificationListenerRegistered';
 const SILEO_DOM_BRIDGE_FLAG = '__sileoDomBridgeRegistered';
 const SILEO_CSS_ID = 'sileo-cdn-css';
 const SILEO_READY_FLAG = '__sileoReady';
-const SILEO_PLUGIN_CONFIG = window.filamentSileoNotificationsConfig ?? {};
+const SILEO_PLUGIN_CONFIG_ROOT = window.filamentSileoNotificationsConfig ?? {};
+const SILEO_PLUGIN_ENABLED = SILEO_PLUGIN_CONFIG_ROOT.enabled ?? true;
+const SILEO_PLUGIN_CONFIG = SILEO_PLUGIN_CONFIG_ROOT.messages ?? {};
 const DEFAULT_CREATE_TITLES = ['created', 'record created successfully'];
 const DEFAULT_EDIT_TITLES = ['saved', 'changes saved successfully'];
 const DEFAULT_DELETE_TITLES = ['deleted', 'record deleted successfully'];
+
+if (! SILEO_PLUGIN_ENABLED) {
+    return;
+}
 
 if (! document.getElementById(SILEO_CSS_ID)) {
     const cssLink = document.createElement('link');

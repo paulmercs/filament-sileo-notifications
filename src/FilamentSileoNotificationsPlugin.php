@@ -34,7 +34,10 @@ class FilamentSileoNotificationsPlugin implements Plugin
             fn (): string => Blade::render(
                 <<<'BLADE'
                     <script>
-                        window.filamentSileoNotificationsConfig = @js(config('filament-sileo-notifications.messages', []));
+                        window.filamentSileoNotificationsConfig = {
+                            enabled: @js(config('filament-sileo-notifications.override_action_notifications', true)),
+                            messages: @js(config('filament-sileo-notifications.messages', [])),
+                        };
                     </script>
                 BLADE,
             ),
