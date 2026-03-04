@@ -4,6 +4,9 @@ const SILEO_DOM_BRIDGE_FLAG = '__sileoDomBridgeRegistered';
 const SILEO_CSS_ID = 'sileo-cdn-css';
 const SILEO_READY_FLAG = '__sileoReady';
 const SILEO_PLUGIN_CONFIG = window.filamentSileoNotificationsConfig ?? {};
+const DEFAULT_CREATE_TITLES = ['created', 'record created successfully'];
+const DEFAULT_EDIT_TITLES = ['saved', 'changes saved successfully'];
+const DEFAULT_DELETE_TITLES = ['deleted', 'record deleted successfully'];
 
 if (! document.getElementById(SILEO_CSS_ID)) {
     const cssLink = document.createElement('link');
@@ -33,6 +36,36 @@ const getFilamentStatusFromElement = (element) => {
     return 'info';
 };
 
+const inferNotificationOperation = (title) => {
+    const normalizedTitle = (title ?? '').toString().trim().toLowerCase();
+
+    if (normalizedTitle === (SILEO_PLUGIN_CONFIG?.create?.title ?? '').toLowerCase()) {
+        return 'create';
+    }
+
+    if (normalizedTitle === (SILEO_PLUGIN_CONFIG?.edit?.title ?? '').toLowerCase()) {
+        return 'edit';
+    }
+
+    if (normalizedTitle === (SILEO_PLUGIN_CONFIG?.delete?.title ?? '').toLowerCase()) {
+        return 'delete';
+    }
+
+    if (DEFAULT_CREATE_TITLES.includes(normalizedTitle)) {
+        return 'create';
+    }
+
+    if (DEFAULT_EDIT_TITLES.includes(normalizedTitle)) {
+        return 'edit';
+    }
+
+    if (DEFAULT_DELETE_TITLES.includes(normalizedTitle)) {
+        return 'delete';
+    }
+
+    return null;
+};
+
 const processFilamentNotificationElement = (element, sendToast) => {
     if (! element || element.dataset.sileoProcessed === '1') {
         return;
@@ -46,11 +79,13 @@ const processFilamentNotificationElement = (element, sendToast) => {
 
     if (! body) {
         if (status === 'success') {
-            if (title === SILEO_PLUGIN_CONFIG?.create?.title) {
+            const operation = inferNotificationOperation(title);
+
+            if (operation === 'create') {
                 body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
-            } else if (title === SILEO_PLUGIN_CONFIG?.edit?.title) {
+            } else if (operation === 'edit') {
                 body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
-            } else if (title === SILEO_PLUGIN_CONFIG?.delete?.title) {
+            } else if (operation === 'delete') {
                 body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
             }
         }
@@ -115,11 +150,13 @@ const bootBridge = (sendToast) => {
             let body = detail.body;
 
             if (! body && detail.status === 'success') {
-                if (detail.title === SILEO_PLUGIN_CONFIG?.create?.title) {
+                const operation = inferNotificationOperation(detail.title);
+
+                if (operation === 'create') {
                     body = SILEO_PLUGIN_CONFIG?.create?.body ?? '';
-                } else if (detail.title === SILEO_PLUGIN_CONFIG?.edit?.title) {
+                } else if (operation === 'edit') {
                     body = SILEO_PLUGIN_CONFIG?.edit?.body ?? '';
-                } else if (detail.title === SILEO_PLUGIN_CONFIG?.delete?.title) {
+                } else if (operation === 'delete') {
                     body = SILEO_PLUGIN_CONFIG?.delete?.body ?? '';
                 }
             }
