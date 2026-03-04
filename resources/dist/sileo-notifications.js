@@ -9,12 +9,7 @@ const SILEO_PLUGIN_CONFIG = SILEO_PLUGIN_CONFIG_ROOT.messages ?? {};
 const DEFAULT_CREATE_TITLES = ['created', 'record created successfully'];
 const DEFAULT_EDIT_TITLES = ['saved', 'changes saved successfully'];
 const DEFAULT_DELETE_TITLES = ['deleted', 'record deleted successfully'];
-
-if (! SILEO_PLUGIN_ENABLED) {
-    return;
-}
-
-if (! document.getElementById(SILEO_CSS_ID)) {
+if (SILEO_PLUGIN_ENABLED && ! document.getElementById(SILEO_CSS_ID)) {
     const cssLink = document.createElement('link');
     cssLink.id = SILEO_CSS_ID;
     cssLink.rel = 'stylesheet';
@@ -244,4 +239,6 @@ const startSileo = async () => {
     }
 };
 
-startSileo();
+if (SILEO_PLUGIN_ENABLED) {
+    startSileo();
+}
